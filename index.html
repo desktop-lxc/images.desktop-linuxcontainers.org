@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Desktop Linux Containers - Image server</title>
+
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="assets/vanilla-framework-version-1.css">
+        <link href="assets/local.css" rel="stylesheet">
+        <link href="assets/pygments.css" rel="stylesheet">
+    </head>
+
+    <body role="document">
+        <div id="navigation" class="p-navigation">
+            <div class="row">
+            	<img src="assets/tins.svg" width="38" height="38" alt="Tins Logo" style="float: right; margin-top: 0.2em; margin-right: 0.4em;" />
+                <div class="p-navigation__logo">
+                    <span class="p-navigation__link">Desktop Linux Containers - Image server</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrapper u-no-margin--top">
+            <div class="inner-wrapper row p-strip col-12 u-wrap-content" id="main-content">
+                <h1>Desktop Image server for Tins, LXC and LXD</h1>
+                <p>This domain hosts a public image server for use by <a href="https://github.com/marbetschar/tins">Tins</a>, LXC and LXD.</p>
+
+                <p>All images available on this server are generated using
+                   community supported, upstream LXC image templates
+                   <a href="https://github.com/lxc/lxc/tree/master/templates">available here</a>.
+                   The build scripts can also be <a href="https://github.com/desktop-lxc/lxc-ci/tree/desktop-lxc">found here</a>.</p>
+
+                <p>Note that the images found on this image server are unofficial images.
+                   Whenever possible, you should try to use official images from
+                   your Linux distribution of choice. Images from this server are
+                   provided as a convenience with no guarantee whatsoever.</p>
+
+                <h1>Currently available images</h1>
+                <table id="available-images" class="table table-striped">
+                    <thead>
+	                    <tr>
+	                        <th>Distribution</th>
+	                        <th>Release</th>
+	                        <th>Architecture</th>
+	                        <th>Variant</th>
+	                        <th>Build date</th>
+	                    </tr>
+                    </thead>
+                    <tbody></tbody>
+				</table>
+
+                <footer class="p-footer">
+                    <div class="row">
+                        <nav class="p-footer__nav">
+                            <ul class="p-inline-list--middot u-no-margin--bottom">
+                                <li class="p-inline-list__item">
+                                    <span class="p-link--soft" id="last-update"></span>
+                                </li>
+
+                                <li class="p-inline-list__item">
+                                    <a class="p-link--soft" href="#">Back to top</a>
+                                </li>
+
+                                <li class="p-inline-list__item">
+                                    <a class="p-link--soft" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Content under Creative Commons CC BY NC SA</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </footer>
+            </div>
+        </div>
+		<script>(function() {
+			var available_images_table_body = document.querySelector('#available-images tbody');
+			var last_update = document.getElementById('last-update');
+			var httpRequest = new XMLHttpRequest();
+			httpRequest.onreadystatechange = function(){
+				if (httpRequest.readyState === XMLHttpRequest.DONE && httpRequest.status === 200) {
+					var available_images = JSON.parse(httpRequest.responseText);
+					
+					last_update.appendChild(document.createTextNode(new Date(available_images.last_update * 1000)));
+					
+					var product_keys = Object.keys(available_images.products);
+					product_keys.sort();
+					
+					product_keys.forEach(function(product_key){
+						var product = available_images.products[product_key];
+						var product_version_keys = Object.keys(product.versions);
+						product_version_keys.sort();
+						
+						var product_key_parts = product_key.split(':');
+						var distribution = product_key_parts[0];
+						var release = product_key_parts[1];
+						var architecture = product_key_parts[2];
+						var variant = product_key_parts[3];
+						
+						product_version_keys.forEach(function(product_version_key){
+							var productRow = available_images_table_body.insertRow();
+							
+							var distributionCell = productRow.insertCell(0);
+							distributionCell.appendChild(document.createTextNode(distribution));
+							
+							var releaseCell = productRow.insertCell(1);
+							releaseCell.appendChild(document.createTextNode(release));
+							
+							var architectureCell = productRow.insertCell(2);
+							architectureCell.appendChild(document.createTextNode(architecture));
+							
+							var variantCell = productRow.insertCell(3);
+							variantCell.appendChild(document.createTextNode(variant));
+							
+							var dateCell = productRow.insertCell(4);
+							dateCell.appendChild(document.createTextNode(product_version_key));
+						});
+					});
+				}
+			};
+			httpRequest.open('GET', 'https://images.desktop-linuxcontainers.org/streams/v1/images.json', true);
+			httpRequest.send();
+		})();</script>
+	</body>
+</html>
