@@ -44,7 +44,8 @@
 	                        <th>Release</th>
 	                        <th>Architecture</th>
 	                        <th>Variant</th>
-	                        <th>Build date</th>
+	                        <th>Size</th>
+				<th>Build date</th>
 	                    </tr>
                     </thead>
                     <tbody></tbody>
@@ -110,7 +111,27 @@
 							var variantCell = productRow.insertCell(3);
 							variantCell.appendChild(document.createTextNode(variant));
 							
-							var dateCell = productRow.insertCell(4);
+							var product_version_size = "N/A";
+							var product_version_items = product.versions[product_version_key].items;
+							if( product_version_items ){
+								var item_keys = Object.keys(product_version_items);
+								
+								product_version_size = 0;
+								item_keys.forEach(function(item_key){
+									var item = product_version_items[item_key];
+									
+									if (item.size) {
+										product_version_size += item.size;
+									}
+								});
+								
+								product_version_size = '~' + Math.round(product_version_size / 1024 / 1024) + ' MB';
+							}
+							
+							var sizeCell = productRow.insertCell(4);
+							sizeCell.appendChild(document.createTextNode(product_version_size));
+							
+							var dateCell = productRow.insertCell(5);
 							dateCell.appendChild(document.createTextNode(product_version_key));
 						});
 					});
